@@ -1,0 +1,119 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   @default("GUEST") // GUEST, STAFF, GM
+  createdAt DateTime @default(now())
+}
+
+model RoomType {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  name        String
+  category    String           // "Rooms" or "Villas"
+  description String
+  maxGuests   Int              @default(2)
+  basePrice   Float
+  totalKeys   Int              // Total resort capacity (sum = 76)
+  imageUrl    String
+  amenities   String           // JSON string of amenities
+  allotments  DailyAllotment[]
+  bookings    Booking[]
+  createdAt   DateTime         @default(now())
+}
+
+model DailyAllotment {
+  id             String   @id @default(cuid())
+  roomTypeId     String
+  roomType       RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+  date           String   // Format: YYYY-MM-DD
+  totalAllotment Int      // Specific quota allocated for direct website bookings (protects agency allotment)
+  bookedCount    Int      @default(0)
+  basePrice      Float    // Daily tariff for this night
+  stopSell       Boolean  @default(false)
+  updatedAt      DateTime @updatedAt
+
+  @@unique([roomTypeId, date])
+  @@index([date])
+}
+
+model Booking {
+  id               String         @id @default(cuid())
+  bookingReference String         @unique // e.g. AH-2026-1001
+  roomTypeId       String
+  roomType         RoomType       @relation(fields: [roomTypeId], references: [id])
+  guestName        String
+  guestEmail       String
+  guestPhone       String
+  checkInDate      String         // YYYY-MM-DD
+  checkOutDate     String         // YYYY-MM-DD
+  nights           Int
+  roomsCount       Int            @default(1)
+  adults           Int            @default(2)
+  children         Int            @default(0)
+  baseTariffTotal  Float
+  gstTotal         Float
+  grandTotal       Float
+  paymentStatus    String         @default("PAID_TEST_MODE") // PAID_TEST_MODE, PENDING, FAILED
+  paymentId        String?
+  dpdpConsent      Boolean        @default(true) // DPDP Act 2023 compliance
+  isForeignGuest   Boolean        @default(false) // Form C physical verification required at check-in
+  status           String         @default("CONFIRMED") // CONFIRMED, CANCELLED
+  nightsBreakdown  BookingNight[]
+  createdAt        DateTime       @default(now())
+
+  @@index([checkInDate, checkOutDate])
+}
+
+model BookingNight {
+  id              String   @id @default(cuid())
+  bookingId       String
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  date            String   // YYYY-MM-DD
+  baseTariff      Float    // Night tariff (e.g. 7200 or 11500)
+  gstRate         Float    // 0.12 (if <= 7500) or 0.18 (if > 7500)
+  gstAmount       Float    // Math.round(baseTariff * gstRate)
+  totalNightPrice Float    // baseTariff + gstAmount
+}
+
+model Enquiry {
+  id              String   @id @default(cuid())
+  enquiryNumber   String   @unique // e.g. ENQ-4410, ENQ-4411, ENQ-4412
+  channel         String   @default("WEB_FORM") // WEB_FORM, EMAIL, WHATSAPP
+  senderName      String
+  senderEmail     String?
+  senderPhone     String?
+  rawMessage      String
+  category        String   // WEDDING, CORPORATE_OFFSITE, ROOM_BOOKING, COMPLAINT, OTHER
+  confidenceScore Float    // 0.0 - 1.0
+  status          String   @default("PENDING") // PENDING, REVIEWED, REPLIED, ESCALATED_GM, NEEDS_REVIEW
+  assignedTo      String   @default("Reservations Team") // Reservations Team, Sales Team, General Manager
+  extractedDates  String?  // Extracted dates string/range
+  extractedPax    Int?     // Extracted guest count
+  extractedBudget Float?   // Extracted budget if mentioned
+  notes           String?
+  draftReply      String
+  isSent          Boolean  @default(false)
+  sentAt          DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([category, status])
+}
+
+model PromoCode {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  discountPercent Float
+  active          Boolean  @default(true)
+  description     String?
+  createdAt       DateTime @default(now())
+}
