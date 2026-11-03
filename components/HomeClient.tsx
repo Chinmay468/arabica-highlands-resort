@@ -73,41 +73,41 @@ export default function HomeClient({ rooms }: { rooms: RoomItem[] }) {
             Perched 1,200 meters above sea level amidst 250 acres of shade-grown Robusta plantations. Book direct to safeguard the resort’s best tariffs with zero agency commissions.
           </p>
 
-          {/* Spacious & Open Booking Search Bar (max-w-5xl) */}
-          <div className="mt-10 max-w-5xl mx-auto bg-white/95 backdrop-blur-md p-5 sm:p-7 rounded-3xl shadow-2xl border border-[#D3C6AA] text-[#182F18]">
-            <form onSubmit={handleSearchBarSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
-              <div className="text-left space-y-1.5">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-[#623F27]">
-                  Check-In Date
+          {/* Refined Proportional Booking Search Card (max-w-3xl) */}
+          <div className="mt-8 max-w-3xl mx-auto bg-white/95 backdrop-blur shadow-xl rounded-2xl p-4 border border-[#D3C6AA]/70 text-[#182F18]">
+            <form onSubmit={handleSearchBarSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+              <div className="text-left space-y-1">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#623F27]">
+                  Check-In
                 </label>
                 <input
                   type="date"
                   value={searchCheckIn}
                   onChange={(e) => setSearchCheckIn(e.target.value)}
-                  className="w-full text-xs py-3 px-4 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#182F18]"
+                  className="w-full text-xs py-2 px-3 rounded-lg border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#182F18]"
                 />
               </div>
 
-              <div className="text-left space-y-1.5">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-[#623F27]">
-                  Check-Out Date
+              <div className="text-left space-y-1">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#623F27]">
+                  Check-Out
                 </label>
                 <input
                   type="date"
                   value={searchCheckOut}
                   onChange={(e) => setSearchCheckOut(e.target.value)}
-                  className="w-full text-xs py-3 px-4 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#182F18]"
+                  className="w-full text-xs py-2 px-3 rounded-lg border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#182F18]"
                 />
               </div>
 
-              <div className="text-left space-y-1.5">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-[#623F27]">
+              <div className="text-left space-y-1">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#623F27]">
                   Sanctuary Category
                 </label>
                 <select
                   value={selectedRoomId}
                   onChange={(e) => setSelectedRoomId(e.target.value)}
-                  className="w-full text-xs py-3 px-4 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#182F18]"
+                  className="w-full text-xs py-2 px-3 rounded-lg border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#182F18]"
                 >
                   {rooms.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -120,9 +120,9 @@ export default function HomeClient({ rooms }: { rooms: RoomItem[] }) {
               <div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 px-6 bg-[#182F18] hover:bg-[#2F502F] text-white text-xs font-bold rounded-xl uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full py-2.5 px-4 bg-[#182F18] hover:bg-[#2F502F] text-white text-xs font-bold rounded-lg uppercase tracking-wider transition-all shadow flex items-center justify-center gap-1.5"
                 >
-                  <span>Check Rates & Book</span>
+                  <span>Check Rates</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#C5A880]" />
                 </button>
               </div>
