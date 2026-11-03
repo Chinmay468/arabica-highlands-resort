@@ -48,24 +48,24 @@ export default function HomeClient({ rooms }: { rooms: RoomItem[] }) {
   return (
     <div className="space-y-16 pb-20">
       {/* 1. HERO SECTION */}
-      <section className="relative min-h-[85vh] flex items-center justify-center bg-[#0F1F0F] text-[#FAF8F5] px-4 overflow-hidden">
-        {/* Background Overlay */}
+      <section className="relative min-h-[88vh] flex items-center justify-center bg-[#0F1F0F] text-[#FAF8F5] px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Background Overlay with Quiet Luxury Depth */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-35 filter brightness-75 scale-105 transition duration-1000"
+          className="absolute inset-0 bg-cover bg-center opacity-30 filter brightness-75 scale-105 transition-transform duration-1000"
           style={{
             backgroundImage:
               "url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=2000&q=80')",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F1F0F] via-transparent to-[#0F1F0F]/80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0F1F0F] via-transparent to-[#0F1F0F]/70" />
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 pt-12 pb-24">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs tracking-widest uppercase text-[#C5A880]">
+        <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8 pt-16 pb-28">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] tracking-[0.25em] uppercase text-[#C5A880]">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Chikkamagaluru • Western Ghats • 76 Keys</span>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.15] max-w-4xl mx-auto">
             Restrained Luxury in the Heart of Coffee Country
           </h1>
 
@@ -73,41 +73,41 @@ export default function HomeClient({ rooms }: { rooms: RoomItem[] }) {
             Perched 1,200 meters above sea level amidst 250 acres of shade-grown Robusta plantations. Book direct to safeguard the resort’s best tariffs with zero agency commissions.
           </p>
 
-          {/* Quick Availability Search Widget */}
-          <div className="mt-8 max-w-3xl mx-auto bg-white/95 backdrop-blur-md p-3 sm:p-4 rounded-2xl shadow-2xl border border-[#D3C6AA] text-[#182F18]">
-            <form onSubmit={handleSearchBarSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#623F27] mb-1 text-left">
-                  Check-In
+          {/* Spacious & Open Booking Search Bar (max-w-5xl) */}
+          <div className="mt-10 max-w-5xl mx-auto bg-white/95 backdrop-blur-md p-5 sm:p-7 rounded-3xl shadow-2xl border border-[#D3C6AA] text-[#182F18]">
+            <form onSubmit={handleSearchBarSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+              <div className="text-left space-y-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-widest text-[#623F27]">
+                  Check-In Date
                 </label>
                 <input
                   type="date"
                   value={searchCheckIn}
                   onChange={(e) => setSearchCheckIn(e.target.value)}
-                  className="w-full text-xs p-2 rounded-lg border border-[#D3C6AA] bg-white font-medium"
+                  className="w-full text-xs py-3 px-4 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#182F18]"
                 />
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#623F27] mb-1 text-left">
-                  Check-Out
+              <div className="text-left space-y-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-widest text-[#623F27]">
+                  Check-Out Date
                 </label>
                 <input
                   type="date"
                   value={searchCheckOut}
                   onChange={(e) => setSearchCheckOut(e.target.value)}
-                  className="w-full text-xs p-2 rounded-lg border border-[#D3C6AA] bg-white font-medium"
+                  className="w-full text-xs py-3 px-4 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#182F18]"
                 />
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#623F27] mb-1 text-left">
+              <div className="text-left space-y-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-widest text-[#623F27]">
                   Sanctuary Category
                 </label>
                 <select
                   value={selectedRoomId}
                   onChange={(e) => setSelectedRoomId(e.target.value)}
-                  className="w-full text-xs p-2 rounded-lg border border-[#D3C6AA] bg-white font-medium"
+                  className="w-full text-xs py-3 px-4 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#182F18]"
                 >
                   {rooms.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -120,24 +120,25 @@ export default function HomeClient({ rooms }: { rooms: RoomItem[] }) {
               <div>
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-4 bg-[#182F18] hover:bg-[#2F502F] text-white text-xs font-bold rounded-lg uppercase tracking-wider transition shadow"
+                  className="w-full py-3.5 px-6 bg-[#182F18] hover:bg-[#2F502F] text-white text-xs font-bold rounded-xl uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
                 >
-                  Check Rates & Book
+                  <span>Check Rates & Book</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#C5A880]" />
                 </button>
               </div>
             </form>
           </div>
 
-          {/* Direct Booking Guarantees */}
-          <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs text-stone-300">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Guaranteed Best Tariff
+          {/* Direct Booking Guarantees with generous breathing space */}
+          <div className="flex flex-wrap items-center justify-center gap-8 pt-4 text-xs text-stone-300">
+            <span className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-400" /> Guaranteed Best Tariff
             </span>
-            <span className="flex items-center gap-1.5">
-              <Coffee className="w-3.5 h-3.5 text-[#C5A880]" /> Complimentary Estate Coffee Tour
+            <span className="flex items-center gap-2">
+              <Coffee className="w-4 h-4 text-[#C5A880]" /> Complimentary Estate Coffee Tour
             </span>
-            <span className="flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-emerald-400" /> DPDP Act 2023 Protected
+            <span className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-emerald-400" /> DPDP Act 2023 Protected
             </span>
           </div>
         </div>

@@ -7,14 +7,11 @@ import {
   Compass,
   Calendar,
   Inbox,
-  ShieldCheck,
   Download,
   User,
   ChevronDown,
-  Sparkles,
-  BedDouble,
   LogOut,
-  AlertTriangle,
+  ShieldAlert,
 } from "lucide-react";
 import type { SessionUser } from "@/lib/auth";
 
@@ -44,9 +41,9 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#E3DAC5]">
+    <header className="sticky top-0 z-50 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E1D3]">
       {/* Role Switcher Top Utility Bar for Reviewers */}
-      <div className="bg-[#182F18] text-[#E3DAC5] text-xs px-4 py-1.5 flex flex-wrap items-center justify-between gap-2">
+      <div className="bg-[#182F18] text-[#E3DAC5] text-xs px-6 sm:px-8 py-1.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#223E22]">
         <div className="flex items-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="font-medium text-emerald-200">Interactive Reviewer Mode:</span>
@@ -62,7 +59,7 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
           <button
             onClick={() => handleRoleSwitch("gm@arabicahighlands.com")}
             disabled={isPending || currentUser.role === "GM"}
-            className={`px-2 py-0.5 rounded transition ${
+            className={`px-2.5 py-0.5 rounded transition ${
               currentUser.role === "GM"
                 ? "bg-amber-600 text-white font-semibold cursor-default"
                 : "bg-white/10 hover:bg-white/20 text-stone-200"
@@ -73,18 +70,18 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
           <button
             onClick={() => handleRoleSwitch("reservations@arabicahighlands.com")}
             disabled={isPending || currentUser.role === "STAFF"}
-            className={`px-2 py-0.5 rounded transition ${
+            className={`px-2.5 py-0.5 rounded transition ${
               currentUser.role === "STAFF"
                 ? "bg-emerald-600 text-white font-semibold cursor-default"
                 : "bg-white/10 hover:bg-white/20 text-stone-200"
             }`}
           >
-            🛎️ Reservations Staff
+            🛎️ Staff
           </button>
           <button
             onClick={() => handleRoleSwitch("guest@example.com")}
             disabled={isPending || currentUser.role === "GUEST"}
-            className={`px-2 py-0.5 rounded transition ${
+            className={`px-2.5 py-0.5 rounded transition ${
               currentUser.role === "GUEST"
                 ? "bg-stone-600 text-white font-semibold cursor-default"
                 : "bg-white/10 hover:bg-white/20 text-stone-200"
@@ -95,99 +92,129 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
         </div>
       </div>
 
-      {/* Main Brand Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand Logo */}
-        <a href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-full bg-[#182F18] flex items-center justify-center text-[#C5A880] shadow-sm group-hover:scale-105 transition-transform">
-            <Compass className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#182F18] block leading-tight">
-              Arabica Highlands
-            </span>
-            <span className="text-[10px] tracking-widest uppercase text-[#7E5433] block">
-              Coffee Estate & Sanctuary • Chikkamagaluru
-            </span>
-          </div>
-        </a>
-
-        {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[#2F502F]">
-          <a href="/#rooms" className="hover:text-[#182F18] transition flex items-center gap-1.5">
-            <BedDouble className="w-4 h-4 text-[#C5A880]" />
-            Rooms & Villas
-          </a>
-          <a href="/events" className="hover:text-[#182F18] transition flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-[#C5A880]" />
-            Weddings & Events
+      {/* Main Luxury Brand Navigation Bar: Spacious & Uncluttered */}
+      <div className="w-full max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+        {/* Left: Brand Identity */}
+        <div className="flex items-center gap-8 lg:gap-12">
+          <a href="/" className="flex items-center gap-3.5 group">
+            <div className="w-10 h-10 rounded-full bg-[#182F18] flex items-center justify-center text-[#C5A880] shadow-sm group-hover:scale-105 transition-transform duration-300">
+              <Compass className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#182F18] block leading-none">
+                Arabica Highlands
+              </span>
+              <span className="text-[9.5px] tracking-[0.2em] uppercase text-[#7E5433] block mt-1 font-medium">
+                Coffee Estate & Sanctuary • Chikkamagaluru
+              </span>
+            </div>
           </a>
 
-          {/* Staff & GM Links */}
+          {/* Understated Guest Navigation */}
+          <nav className="hidden md:flex items-center gap-8">
+            <a
+              href="/#rooms"
+              className="text-xs uppercase tracking-widest font-medium text-[#2F502F] hover:text-[#182F18] transition-colors py-1"
+            >
+              Rooms & Villas
+            </a>
+            <a
+              href="/events"
+              className="text-xs uppercase tracking-widest font-medium text-[#2F502F] hover:text-[#182F18] transition-colors py-1"
+            >
+              Weddings & Events
+            </a>
+          </nav>
+        </div>
+
+        {/* Right Section: Staff Utilities Pill Group + CTA + Profile */}
+        <div className="flex items-center gap-6">
+          {/* Subtle Secondary Staff Utility Pill Group */}
           {(currentUser.role === "STAFF" || currentUser.role === "GM") && (
-            <>
+            <div className="hidden lg:flex items-center gap-1.5 p-1 bg-[#F2EDE2]/80 border border-[#DDD3BF] rounded-full text-xs">
               <a
                 href="/inbox"
-                className="hover:text-[#182F18] transition flex items-center gap-1.5 relative px-2.5 py-1 rounded bg-[#EFE8DA]"
+                className="px-3 py-1.5 rounded-full text-[#223E22] hover:bg-white hover:text-[#182F18] transition flex items-center gap-1.5 font-medium"
               >
-                <Inbox className="w-4 h-4 text-[#446B44]" />
+                <Inbox className="w-3.5 h-3.5 text-[#446B44]" />
                 <span>AI Inbox</span>
                 {pendingEscalationsCount > 0 && (
-                  <span className="bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full animate-bounce">
+                  <span className="bg-red-600 text-white text-[9.5px] font-bold px-1.5 py-0.2 rounded-full animate-pulse">
                     {pendingEscalationsCount}
                   </span>
                 )}
               </a>
 
-              <a href="/admin/allotment" className="hover:text-[#182F18] transition flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-[#446B44]" />
-                Allotment & Rates
+              <a
+                href="/admin/allotment"
+                className="px-3 py-1.5 rounded-full text-[#223E22] hover:bg-white hover:text-[#182F18] transition flex items-center gap-1.5 font-medium"
+              >
+                <Calendar className="w-3.5 h-3.5 text-[#446B44]" />
+                <span>Allotment & Rates</span>
               </a>
 
-              <a href="/admin/export" className="hover:text-[#182F18] transition flex items-center gap-1.5">
-                <Download className="w-4 h-4 text-[#446B44]" />
-                PMS Export
+              <a
+                href="/admin/export"
+                className="px-3 py-1.5 rounded-full text-[#223E22] hover:bg-white hover:text-[#182F18] transition flex items-center gap-1.5 font-medium"
+              >
+                <Download className="w-3.5 h-3.5 text-[#446B44]" />
+                <span>PMS Export</span>
               </a>
-            </>
+            </div>
           )}
-        </nav>
 
-        {/* Right CTA & Account Dropdown */}
-        <div className="flex items-center gap-3">
+          {/* Direct Booking CTA */}
           <a
             href="/#rooms"
-            className="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider bg-[#182F18] text-[#FAF8F5] hover:bg-[#223E22] transition shadow-sm"
+            className="hidden sm:inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#182F18] text-[#FAF8F5] hover:bg-[#2F502F] transition-all shadow-sm"
           >
-            Direct Book (Save 15%)
+            Direct Book
           </a>
 
-          {/* User Profile Button */}
+          {/* User Profile Menu */}
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-2 p-1.5 rounded-full border border-[#D3C6AA] bg-white text-[#182F18] hover:bg-[#F8F4EC] transition"
+              className="flex items-center gap-2 p-1.5 pr-2.5 rounded-full border border-[#D3C6AA] bg-white text-[#182F18] hover:bg-[#F8F4EC] transition shadow-2xs"
             >
               <div className="w-7 h-7 rounded-full bg-[#EFE8DA] flex items-center justify-center text-[#446B44]">
-                <User className="w-4 h-4" />
+                <User className="w-3.5 h-3.5" />
               </div>
-              <span className="text-xs font-medium hidden lg:inline max-w-[100px] truncate">
+              <span className="text-xs font-medium hidden sm:inline max-w-[90px] truncate">
                 {currentUser.name.split(" ")[0]}
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-stone-500 mr-1" />
+              <ChevronDown className="w-3.5 h-3.5 text-stone-400" />
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-[#E3DAC5] p-3 z-50 text-xs">
-                <div className="pb-2 mb-2 border-b border-stone-100">
+              <div className="absolute right-0 mt-2.5 w-64 bg-white rounded-2xl shadow-2xl border border-[#E3DAC5] p-3.5 z-50 text-xs">
+                <div className="pb-2.5 mb-2.5 border-b border-stone-100">
                   <p className="font-semibold text-stone-900">{currentUser.name}</p>
                   <p className="text-stone-500 text-[11px] truncate">{currentUser.email}</p>
-                  <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="inline-block mt-1 text-[9.5px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
                     Role: {currentUser.role}
                   </span>
                 </div>
 
+                {/* Mobile links if hidden on small screens */}
+                <div className="lg:hidden space-y-1 pb-2 mb-2 border-b border-stone-100">
+                  {(currentUser.role === "STAFF" || currentUser.role === "GM") && (
+                    <>
+                      <a href="/inbox" className="block px-2 py-1.5 rounded hover:bg-stone-50 text-stone-700">
+                        AI Enquiry Inbox
+                      </a>
+                      <a href="/admin/allotment" className="block px-2 py-1.5 rounded hover:bg-stone-50 text-stone-700">
+                        Allotment & Rates Admin
+                      </a>
+                      <a href="/admin/export" className="block px-2 py-1.5 rounded hover:bg-stone-50 text-stone-700">
+                        PMS Daily Export
+                      </a>
+                    </>
+                  )}
+                </div>
+
                 <div className="space-y-1">
-                  <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider px-1">
+                  <p className="text-[9.5px] uppercase font-bold text-stone-400 tracking-wider px-1">
                     Demo Role Switch
                   </p>
                   <button
@@ -214,15 +241,9 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
                 </div>
 
                 <div className="pt-2 mt-2 border-t border-stone-100">
-                  <a
-                    href="/login"
-                    className="block px-2 py-1.5 rounded hover:bg-stone-50 text-stone-700 font-medium"
-                  >
-                    Sign In with Another Account
-                  </a>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-2 py-1.5 rounded hover:bg-red-50 text-red-600 flex items-center gap-1.5 mt-1"
+                    className="w-full text-left px-2 py-1.5 rounded hover:bg-red-50 text-red-600 flex items-center gap-1.5"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     Reset to Default Guest
