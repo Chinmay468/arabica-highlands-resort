@@ -168,12 +168,6 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
         {/* Center: Clean, Well-Spaced Guest Links */}
         <nav className="hidden lg:flex items-center gap-10">
           <a
-            href="/"
-            className="text-xs uppercase tracking-widest text-stone-700 hover:text-[#182F18] font-medium transition-colors py-1"
-          >
-            The Estate
-          </a>
-          <a
             href="/#rooms"
             className="text-xs uppercase tracking-widest text-stone-700 hover:text-[#182F18] font-medium transition-colors py-1"
           >
@@ -236,9 +230,6 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
 
                 {/* Mobile staff links if hidden on small screens */}
                 <div className="lg:hidden space-y-1 pb-2 mb-2 border-b border-stone-100">
-                  <a href="/" className="block px-2 py-1.5 rounded hover:bg-stone-50 text-stone-700">
-                    The Estate
-                  </a>
                   <a href="/#rooms" className="block px-2 py-1.5 rounded hover:bg-stone-50 text-stone-700">
                     Rooms & Villas
                   </a>
