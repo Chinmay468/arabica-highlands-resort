@@ -248,7 +248,7 @@ export default function HomeClient({ rooms }: { rooms: RoomItem[] }) {
       </section>
 
       {/* 3. ESTATE EXPERIENCES & COFFEE HERITAGE */}
-      <section className="bg-[#182F18] text-[#FAF8F5] py-16 px-4">
+      <section id="experience" className="bg-[#182F18] text-[#FAF8F5] py-16 px-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="max-w-2xl space-y-3">
             <span className="text-xs uppercase font-bold tracking-widest text-[#C5A880]">

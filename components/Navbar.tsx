@@ -10,6 +10,9 @@ import {
   User,
   ChevronDown,
   LogOut,
+  MapPin,
+  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import type { SessionUser } from "@/lib/auth";
 
@@ -42,10 +45,10 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
 
   return (
     <header className="sticky top-0 z-50 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E1D3]">
-      {/* 1. Top Reviewer Utility Bar: Holds Staff Links & 1-Click Role Switcher */}
-      <div className="bg-[#182F18] text-[#E3DAC5] text-xs px-6 sm:px-8 py-2 flex flex-wrap items-center justify-between gap-3 border-b border-[#223E22]">
+      {/* 1. Full-Width Top Reviewer Utility Bar */}
+      <div className="w-full bg-[#182F18] text-[#E3DAC5] text-xs px-6 sm:px-10 lg:px-14 xl:px-16 py-2 flex flex-wrap items-center justify-between gap-3 border-b border-[#223E22]">
         {/* Left: Active Role Indicator */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="font-medium text-emerald-200">Reviewer Mode:</span>
           <span>Logged in as:</span>
@@ -54,10 +57,12 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
           </span>
         </div>
 
-        {/* Center: Internal Staff & GM Tool Links (Relocated from main navbar) */}
-        {isStaffOrGM && (
-          <div className="flex items-center gap-4 text-xs font-medium text-stone-300">
-            <span className="text-stone-500 font-normal">Internal Tools:</span>
+        {/* Center: Internal Staff & GM Tool Links OR Direct Engine Status */}
+        {isStaffOrGM ? (
+          <div className="flex items-center gap-5 text-xs font-medium text-stone-300">
+            <span className="text-stone-400 text-[11px] uppercase tracking-wider font-semibold">
+              Internal Portals:
+            </span>
             <a
               href="/inbox"
               className="hover:text-white transition flex items-center gap-1.5"
@@ -91,11 +96,22 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
               <span>PMS Export</span>
             </a>
           </div>
+        ) : (
+          <div className="hidden md:flex items-center gap-3 text-[11px] text-[#A3B6A3]">
+            <span className="flex items-center gap-1 text-emerald-300 font-medium">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              Direct Booking Engine Active
+            </span>
+            <span className="text-stone-600">•</span>
+            <span>Zero Agency Commissions</span>
+            <span className="text-stone-600">•</span>
+            <span>DPDP Act 2023 Compliant</span>
+          </div>
         )}
 
         {/* Right: 1-Click Role Switch Pills */}
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-stone-400 mr-1 hidden sm:inline">1-Click Switch:</span>
+          <span className="text-stone-400 mr-1 hidden sm:inline text-[11px]">1-Click Switch:</span>
           <button
             onClick={() => handleRoleSwitch("gm@arabicahighlands.com")}
             disabled={isPending || currentUser.role === "GM"}
@@ -132,10 +148,10 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
         </div>
       </div>
 
-      {/* 2. Pure Guest Navigation Bar: Left Logo, Center Links, Right Direct Book & Profile */}
-      <div className="w-full max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+      {/* 2. Full-Width Guest Navigation Bar */}
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-16 py-4 flex items-center justify-between">
         {/* Left: Brand Identity */}
-        <a href="/" className="flex items-center gap-3.5 group">
+        <a href="/" className="flex items-center gap-3.5 group shrink-0">
           <div className="w-10 h-10 rounded-full bg-[#182F18] flex items-center justify-center text-[#C5A880] shadow-sm group-hover:scale-105 transition-transform duration-300">
             <Compass className="w-5 h-5" />
           </div>
@@ -149,27 +165,46 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
           </div>
         </a>
 
-        {/* Center: Clean Guest Links (No icons, no outline boxes) */}
-        <nav className="hidden md:flex items-center gap-10">
+        {/* Center: Clean, Well-Spaced Guest Links */}
+        <nav className="hidden lg:flex items-center gap-10">
+          <a
+            href="/"
+            className="text-xs uppercase tracking-widest text-stone-700 hover:text-[#182F18] font-medium transition-colors py-1"
+          >
+            The Estate
+          </a>
           <a
             href="/#rooms"
-            className="text-sm tracking-wide text-stone-700 hover:text-[#182F18] font-medium transition-colors"
+            className="text-xs uppercase tracking-widest text-stone-700 hover:text-[#182F18] font-medium transition-colors py-1"
           >
             Rooms & Villas
           </a>
           <a
             href="/events"
-            className="text-sm tracking-wide text-stone-700 hover:text-[#182F18] font-medium transition-colors"
+            className="text-xs uppercase tracking-widest text-stone-700 hover:text-[#182F18] font-medium transition-colors py-1"
           >
             Weddings & Events
           </a>
+          <a
+            href="/#experience"
+            className="text-xs uppercase tracking-widest text-stone-700 hover:text-[#182F18] font-medium transition-colors py-1"
+          >
+            Coffee Cupping
+          </a>
         </nav>
 
-        {/* Right: Solid Dark Emerald Direct Book Button & Profile */}
-        <div className="flex items-center gap-4">
+        {/* Right: Location Pill + Solid Direct Book Button + Profile */}
+        <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+          {/* Subtle Location / Privilege Tag */}
+          <div className="hidden xl:flex items-center gap-2 text-xs text-stone-500 border-r border-[#E3DAC5] pr-5">
+            <MapPin className="w-3.5 h-3.5 text-[#C5A880]" />
+            <span className="font-serif italic text-stone-600">Western Ghats • 1,200m</span>
+          </div>
+
+          {/* Solid Dark Emerald Direct Book Button */}
           <a
             href="/#rooms"
-            className="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#182F18] text-[#FAF8F5] hover:bg-[#2F502F] transition-all shadow-sm"
+            className="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#182F18] text-[#FAF8F5] hover:bg-[#2F502F] transition-all shadow-sm hover:shadow"
           >
             Direct Book
           </a>
@@ -200,7 +235,10 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
                 </div>
 
                 {/* Mobile staff links if hidden on small screens */}
-                <div className="md:hidden space-y-1 pb-2 mb-2 border-b border-stone-100">
+                <div className="lg:hidden space-y-1 pb-2 mb-2 border-b border-stone-100">
+                  <a href="/" className="block px-2 py-1.5 rounded hover:bg-stone-50 text-stone-700">
+                    The Estate
+                  </a>
                   <a href="/#rooms" className="block px-2 py-1.5 rounded hover:bg-stone-50 text-stone-700">
                     Rooms & Villas
                   </a>
