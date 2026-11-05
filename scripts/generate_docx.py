@@ -51,7 +51,7 @@ def create_document():
     meta_table = doc.add_table(rows=5, cols=2)
     meta_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     meta_data = [
-        ("Project Repository URL (GitHub)", "https://github.com/YOUR_USERNAME/arabica-highlands-resort"),
+        ("Project Repository URL (GitHub)", "https://github.com/Chinmay468/arabica-highlands-resort"),
         ("Live Deployed Application", "https://arabica-highlands.vercel.app (Optional/If deployed)"),
         ("Client Problem Statement", "Option 1: Hill resort's direct-booking website with AI enquiry routing (Chikkamagaluru, Karnataka)"),
         ("Author / Submission Scope", "Software Engineering Candidate • Full-Stack Slice (6-8 Screens)"),

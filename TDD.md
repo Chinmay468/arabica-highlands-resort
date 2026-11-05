@@ -1,7 +1,7 @@
 # Technical Design Document (TDD)
 ## Arabica Highlands Resort & Sanctuary — Direct Booking & AI Enquiry Routing Engine
 
-**Repository URL:** `https://github.com/YOUR_USERNAME/arabica-highlands-resort` *(Update with final repository URL)*  
+**Repository URL:** `https://github.com/Chinmay468/arabica-highlands-resort`  
 **Live Application URL:** `https://arabica-highlands.vercel.app` *(Optional / If deployed)*  
 **Client Problem Statement:** Option 1 — Hill resort's direct-booking website with AI enquiry routing (Chikkamagaluru, Karnataka)  
 **Author:** Software Engineering Candidate  

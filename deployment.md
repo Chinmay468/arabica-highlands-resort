@@ -26,8 +26,8 @@ For immediate evaluation, the application includes pre-seeded demo accounts with
 ### Installation & Initialization
 1. **Clone the Repository:**
    ```bash
-   git clone <YOUR_GITHUB_REPOSITORY_URL>
-   cd Isocode
+   git clone https://github.com/Chinmay468/arabica-highlands-resort.git
+   cd arabica-highlands-resort
    ```
 
 2. **Install Dependencies:**
