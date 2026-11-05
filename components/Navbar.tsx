@@ -196,12 +196,21 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
           </div>
 
           {/* Solid Dark Emerald Direct Book Button */}
-          <a
-            href="/#rooms"
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                if (window.location.pathname === "/") {
+                  window.dispatchEvent(new CustomEvent("open-booking-modal"));
+                } else {
+                  window.location.href = "/?book=true";
+                }
+              }
+            }}
             className="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#182F18] text-[#FAF8F5] hover:bg-[#2F502F] transition-all shadow-sm hover:shadow"
           >
             Direct Book
-          </a>
+          </button>
 
           {/* User Profile Menu */}
           <div className="relative">

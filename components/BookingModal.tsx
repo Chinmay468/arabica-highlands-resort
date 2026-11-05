@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
+import { createPortal } from "react-dom";
 import {
   calculateStayPrice,
   checkAvailability,
@@ -49,6 +50,8 @@ export default function BookingModal({
   defaultCheckIn,
   defaultCheckOut,
 }: BookingModalProps) {
+  const [mounted, setMounted] = useState(false);
+
   // Default dates: tomorrow to day after tomorrow if none provided
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -87,6 +90,37 @@ export default function BookingModal({
   const [isPending, startTransition] = useTransition();
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Sync preselected room
+  useEffect(() => {
+    if (preselectedRoomId) {
+      setSelectedRoomId(preselectedRoomId);
+    }
+  }, [preselectedRoomId]);
+
+  // Lock body scroll and listen for Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   // Recalculate price quote when room, dates, or promo change
   useEffect(() => {
     if (!selectedRoomId || !checkIn || !checkOut || checkIn >= checkOut) return;
@@ -99,11 +133,13 @@ export default function BookingModal({
       calculateStayPrice(selectedRoomId, checkIn, checkOut, roomsCount, promoCode),
       checkAvailability(selectedRoomId, checkIn, checkOut, roomsCount),
     ])
-      .then(([priceQuote, avail]) => {
+      .then(([quoteRes, availRes]) => {
         if (!active) return;
-        setQuote(priceQuote);
-        if (!avail.available) {
-          setAvailabilityMessage(avail.message || "Selected dates exceed website allotment.");
+        setQuote(quoteRes);
+        if (!availRes.available) {
+          setAvailabilityMessage(
+            availRes.message || "Selected category has limited keys for these dates."
+          );
         } else {
           setAvailabilityMessage(null);
         }
@@ -121,7 +157,7 @@ export default function BookingModal({
     };
   }, [selectedRoomId, checkIn, checkOut, roomsCount, promoCode]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleApplyPromo = () => {
     if (promoInput.trim()) {
@@ -184,51 +220,73 @@ export default function BookingModal({
 
   const selectedRoomObj = roomTypes.find((r) => r.id === selectedRoomId);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#FAF8F5] rounded-2xl shadow-2xl border border-[#D3C6AA] w-full max-w-2xl overflow-hidden my-8">
-        {/* Header */}
-        <div className="bg-[#182F18] text-[#E3DAC5] p-5 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-serif text-lg font-bold text-white tracking-wide">
-                Direct Reservation
+  const modalContent = (
+    <div
+      className="fixed inset-0 z-[9999] overflow-y-auto bg-black/80 backdrop-blur-2xl flex justify-center items-start pt-6 sm:pt-10 pb-16 px-4 sm:px-6 transition-all duration-300 animate-in fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="relative bg-[#FAF8F5] rounded-[32px] sm:rounded-[36px] shadow-[0_30px_90px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.12)] border border-[#E3DAC5] w-full max-w-2xl sm:max-w-3xl overflow-hidden transform transition-all duration-300 scale-100 animate-in zoom-in-95"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Luxury Header Banner */}
+        <div className="bg-[#182F18] text-[#E3DAC5] px-6 sm:px-8 py-5 flex items-center justify-between border-b border-[#223E22]">
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="font-serif text-lg sm:text-xl font-bold text-white tracking-wide">
+                Direct Sanctuary Reservation
               </span>
-              <span className="text-[10px] bg-[#C5A880]/20 text-[#C5A880] px-2 py-0.5 rounded border border-[#C5A880]/30 font-semibold uppercase tracking-wider">
-                Direct Rate Protection
+              <span className="text-[10px] bg-[#C5A880]/20 text-[#D8BC94] px-2.5 py-0.5 rounded-full border border-[#C5A880]/30 font-semibold uppercase tracking-wider">
+                Direct Rate Protection • 0% Fees
               </span>
             </div>
-            <p className="text-xs text-[#A3B6A3] mt-0.5">
-              Arabica Highlands Estate & Sanctuary • Chikkamagaluru
+            <p className="text-xs text-[#A3B6A3]">
+              Arabica Highlands Estate & Sanctuary • 76 Keys • Chikkamagaluru
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/10 text-stone-300 transition"
+            className="p-2 rounded-full hover:bg-white/10 text-stone-300 hover:text-white transition-colors"
+            title="Close Reservation"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Progress Stepper */}
+        {/* Progress Stepper with curved pills */}
         {step < 4 && (
-          <div className="px-6 py-3 bg-[#EFE8DA] border-b border-[#D3C6AA] flex items-center justify-between text-xs font-medium text-[#446B44]">
-            <div className={`flex items-center gap-1.5 ${step === 1 ? "font-bold text-[#182F18]" : ""}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] ${step === 1 ? "bg-[#182F18] text-white" : "bg-[#D3C6AA] text-[#182F18]"}`}>
+          <div className="px-6 sm:px-8 py-3.5 bg-[#F2EDE2] border-b border-[#DDD3BF] flex items-center justify-between text-xs font-medium text-[#446B44]">
+            <div className={`flex items-center gap-2 ${step === 1 ? "font-bold text-[#182F18]" : ""}`}>
+              <span
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                  step === 1 ? "bg-[#182F18] text-white shadow-xs" : "bg-[#DDD3BF] text-[#182F18]"
+                }`}
+              >
                 1
               </span>
               <span>Dates & Rate Slabs</span>
             </div>
             <span className="text-[#C5A880]">→</span>
-            <div className={`flex items-center gap-1.5 ${step === 2 ? "font-bold text-[#182F18]" : ""}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] ${step === 2 ? "bg-[#182F18] text-white" : "bg-[#D3C6AA] text-[#182F18]"}`}>
+            <div className={`flex items-center gap-2 ${step === 2 ? "font-bold text-[#182F18]" : ""}`}>
+              <span
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                  step === 2 ? "bg-[#182F18] text-white shadow-xs" : "bg-[#DDD3BF] text-[#182F18]"
+                }`}
+              >
                 2
               </span>
               <span>Guest & DPDP Consent</span>
             </div>
             <span className="text-[#C5A880]">→</span>
-            <div className={`flex items-center gap-1.5 ${step === 3 ? "font-bold text-[#182F18]" : ""}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] ${step === 3 ? "bg-[#182F18] text-white" : "bg-[#D3C6AA] text-[#182F18]"}`}>
+            <div className={`flex items-center gap-2 ${step === 3 ? "font-bold text-[#182F18]" : ""}`}>
+              <span
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                  step === 3 ? "bg-[#182F18] text-white shadow-xs" : "bg-[#DDD3BF] text-[#182F18]"
+                }`}
+              >
                 3
               </span>
               <span>Test Payment</span>
@@ -237,32 +295,35 @@ export default function BookingModal({
         )}
 
         {/* Body Steps */}
-        <div className="p-6">
+        <div className="p-6 sm:p-8">
           {/* STEP 1: DATES, ROOM & GST QUOTE */}
           {step === 1 && (
-            <div className="space-y-5">
+            <div className="space-y-6">
               {/* Room Selection */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#492E1E] mb-1.5">
-                  Select Room / Villa Category
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div className="flex items-center justify-between mb-2.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#492E1E]">
+                    Select Room / Villa Category
+                  </label>
+                  <span className="text-[11px] text-stone-500">All 76 keys managed atomically</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                   {roomTypes.map((r) => (
                     <button
                       key={r.id}
                       type="button"
                       onClick={() => setSelectedRoomId(r.id)}
-                      className={`p-3 rounded-xl border text-left transition ${
+                      className={`p-4 rounded-2xl border text-left transition-all ${
                         selectedRoomId === r.id
-                          ? "border-[#182F18] bg-white shadow-sm ring-1 ring-[#182F18]"
-                          : "border-[#D3C6AA] bg-[#F8F4EC] hover:bg-white"
+                          ? "border-[#182F18] bg-white shadow-md ring-2 ring-[#182F18]/25 scale-[1.01]"
+                          : "border-[#D3C6AA] bg-[#F8F4EC] hover:bg-white hover:border-stone-400"
                       }`}
                     >
                       <p className="font-semibold text-xs text-[#182F18] truncate">{r.name}</p>
-                      <p className="text-[11px] text-[#7E5433] mt-0.5">
+                      <p className="text-[12px] text-[#7E5433] mt-1 font-bold">
                         ₹{r.basePrice.toLocaleString("en-IN")}/nt
                       </p>
-                      <span className="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#EFE8DA] text-[#446B44]">
+                      <span className="inline-block mt-2 text-[9.5px] font-bold px-2.5 py-0.5 rounded-full bg-[#EFE8DA] text-[#446B44]">
                         {r.basePrice <= 7500 ? "12% GST Slab" : "18% GST Slab"}
                       </span>
                     </button>
@@ -270,10 +331,10 @@ export default function BookingModal({
                 </div>
               </div>
 
-              {/* Dates & Capacity */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Dates & Capacity Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#492E1E] mb-1">
+                  <label className="block text-xs font-bold text-[#492E1E] mb-1.5">
                     Check-In Date
                   </label>
                   <input
@@ -281,11 +342,11 @@ export default function BookingModal({
                     value={checkIn}
                     onChange={(e) => setCheckIn(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
-                    className="w-full text-xs p-2.5 rounded-lg border border-[#D3C6AA] bg-white focus:outline-none focus:ring-1 focus:ring-[#182F18]"
+                    className="w-full text-xs p-3 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#182F18]/20 transition"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[#492E1E] mb-1">
+                  <label className="block text-xs font-bold text-[#492E1E] mb-1.5">
                     Check-Out Date
                   </label>
                   <input
@@ -293,19 +354,19 @@ export default function BookingModal({
                     value={checkOut}
                     onChange={(e) => setCheckOut(e.target.value)}
                     min={checkIn}
-                    className="w-full text-xs p-2.5 rounded-lg border border-[#D3C6AA] bg-white focus:outline-none focus:ring-1 focus:ring-[#182F18]"
+                    className="w-full text-xs p-3 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#182F18]/20 transition"
                   />
                 </div>
               </div>
 
               {/* Guest Counts */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-3.5">
                 <div>
-                  <label className="block text-xs font-semibold text-[#492E1E] mb-1">Rooms</label>
+                  <label className="block text-xs font-semibold text-[#492E1E] mb-1.5">Rooms</label>
                   <select
                     value={roomsCount}
                     onChange={(e) => setRoomsCount(Number(e.target.value))}
-                    className="w-full text-xs p-2.5 rounded-lg border border-[#D3C6AA] bg-white"
+                    className="w-full text-xs p-3 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#182F18]/20"
                   >
                     {[1, 2, 3, 4].map((n) => (
                       <option key={n} value={n}>
@@ -315,11 +376,11 @@ export default function BookingModal({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#492E1E] mb-1">Adults</label>
+                  <label className="block text-xs font-semibold text-[#492E1E] mb-1.5">Adults</label>
                   <select
                     value={adults}
                     onChange={(e) => setAdults(Number(e.target.value))}
-                    className="w-full text-xs p-2.5 rounded-lg border border-[#D3C6AA] bg-white"
+                    className="w-full text-xs p-3 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#182F18]/20"
                   >
                     {[1, 2, 3, 4, 6].map((n) => (
                       <option key={n} value={n}>
@@ -329,11 +390,11 @@ export default function BookingModal({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#492E1E] mb-1">Children</label>
+                  <label className="block text-xs font-semibold text-[#492E1E] mb-1.5">Children</label>
                   <select
                     value={children}
                     onChange={(e) => setChildren(Number(e.target.value))}
-                    className="w-full text-xs p-2.5 rounded-lg border border-[#D3C6AA] bg-white"
+                    className="w-full text-xs p-3 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#182F18]/20"
                   >
                     {[0, 1, 2, 3].map((n) => (
                       <option key={n} value={n}>
@@ -345,21 +406,21 @@ export default function BookingModal({
               </div>
 
               {/* Promo Code Entry */}
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-2.5">
                 <div className="relative flex-1">
-                  <Tag className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-3" />
+                  <Tag className="w-3.5 h-3.5 text-stone-400 absolute left-3.5 top-3.5" />
                   <input
                     type="text"
                     placeholder="Try promo 'DIRECT10' or 'ESTATE15'"
                     value={promoInput}
                     onChange={(e) => setPromoInput(e.target.value)}
-                    className="w-full text-xs pl-8 pr-3 py-2 rounded-lg border border-[#D3C6AA] bg-white uppercase"
+                    className="w-full text-xs pl-9 pr-3 py-2.5 rounded-xl border border-[#D3C6AA] bg-white uppercase font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-[#182F18]/20"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleApplyPromo}
-                  className="px-3 py-2 text-xs font-semibold bg-[#446B44] text-white rounded-lg hover:bg-[#2F502F] transition"
+                  className="px-5 py-2.5 text-xs font-bold bg-[#446B44] text-white rounded-xl hover:bg-[#2F502F] transition shadow-xs"
                 >
                   Apply
                 </button>
@@ -367,13 +428,13 @@ export default function BookingModal({
 
               {/* Availability Alert if Allotment Exhausted */}
               {availabilityMessage && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2">
+                <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-3">
                   <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
                   <div>
                     <span className="font-semibold">Allotment Notice: </span>
                     {availabilityMessage}
                     <p className="text-[11px] text-red-600 mt-0.5">
-                      The resort restricts website allotment to protect agency quotas. Please try alternate dates.
+                      The resort restricts website allotment to protect agency quotas. Please try alternate dates or room categories.
                     </p>
                   </div>
                 </div>
@@ -381,26 +442,26 @@ export default function BookingModal({
 
               {/* Per-Night Itemized GST Slab Calculation Breakdown */}
               {quote && !availabilityMessage && (
-                <div className="p-4 rounded-xl bg-white border border-[#D3C6AA] space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#182F18] pb-1.5 border-b border-stone-100">
+                <div className="p-5 rounded-2xl bg-white border border-[#D3C6AA] space-y-3.5 shadow-xs">
+                  <div className="flex items-center justify-between text-xs font-bold text-[#182F18] pb-2.5 border-b border-stone-100">
                     <span>Stay Tariff Breakdown ({quote.nightsCount} {quote.nightsCount === 1 ? "Night" : "Nights"})</span>
-                    <span className="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    <span className="text-[10px] uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-semibold">
                       Per-Night GST Verified
                     </span>
                   </div>
 
                   {/* Per Night Slabs */}
-                  <div className="space-y-1 text-xs">
+                  <div className="space-y-2 text-xs">
                     {quote.nightsBreakdown.map((n) => (
                       <div key={n.date} className="flex items-center justify-between text-stone-600">
-                        <span>
+                        <span className="font-medium text-stone-700">
                           {n.date} (Base: ₹{n.baseTariff.toLocaleString("en-IN")})
                         </span>
                         <div className="text-right">
                           <span className="text-[11px] text-[#7E5433] mr-2">
                             +{Math.round(n.gstRate * 100)}% GST (₹{n.gstAmount.toLocaleString("en-IN")})
                           </span>
-                          <span className="font-medium text-stone-900">
+                          <span className="font-semibold text-stone-900">
                             ₹{n.totalNightPrice.toLocaleString("en-IN")}
                           </span>
                         </div>
@@ -409,24 +470,24 @@ export default function BookingModal({
                   </div>
 
                   {/* Summary Totals */}
-                  <div className="pt-2 border-t border-stone-100 text-xs space-y-1">
+                  <div className="pt-3 border-t border-stone-100 text-xs space-y-2">
                     <div className="flex justify-between text-stone-600">
                       <span>Total Base Tariff:</span>
-                      <span>₹{quote.discountedBaseTariff.toLocaleString("en-IN")}</span>
+                      <span className="font-medium">₹{quote.discountedBaseTariff.toLocaleString("en-IN")}</span>
                     </div>
                     {quote.discountAmount > 0 && (
-                      <div className="flex justify-between text-emerald-700">
+                      <div className="flex justify-between text-emerald-700 font-semibold">
                         <span>Promo Code Discount ({quote.appliedPromo?.code}):</span>
                         <span>-₹{quote.discountAmount.toLocaleString("en-IN")}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-stone-600">
                       <span>Combined GST (CGST + SGST):</span>
-                      <span>₹{quote.gstTotal.toLocaleString("en-IN")}</span>
+                      <span className="font-medium">₹{quote.gstTotal.toLocaleString("en-IN")}</span>
                     </div>
-                    <div className="flex justify-between text-sm font-bold text-[#182F18] pt-1 border-t border-stone-200">
+                    <div className="flex justify-between text-base font-bold text-[#182F18] pt-2.5 border-t border-stone-200">
                       <span>Grand Total:</span>
-                      <span className="text-[#2F502F]">₹{quote.grandTotal.toLocaleString("en-IN")}</span>
+                      <span className="text-[#182F18] font-serif text-lg">₹{quote.grandTotal.toLocaleString("en-IN")}</span>
                     </div>
                   </div>
                 </div>
@@ -438,7 +499,7 @@ export default function BookingModal({
                   type="button"
                   disabled={!quote || !!availabilityMessage || quoteLoading}
                   onClick={handleProceedToGuestDetails}
-                  className="px-5 py-2.5 bg-[#182F18] hover:bg-[#2F502F] text-white text-xs font-semibold rounded-xl flex items-center gap-2 transition disabled:opacity-50"
+                  className="px-7 py-3.5 bg-[#182F18] hover:bg-[#2F502F] text-white text-xs font-bold rounded-2xl flex items-center gap-2 transition-all disabled:opacity-50 shadow-md hover:shadow-lg hover:scale-[1.01]"
                 >
                   <span>Continue to Guest Details</span>
                   <ArrowRight className="w-4 h-4" />
@@ -451,7 +512,7 @@ export default function BookingModal({
           {step === 2 && (
             <form onSubmit={handleProceedToPayment} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#492E1E] mb-1">
+                <label className="block text-xs font-bold text-[#492E1E] mb-1.5">
                   Full Name (Primary Guest)
                 </label>
                 <input
@@ -460,13 +521,13 @@ export default function BookingModal({
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
                   placeholder="e.g. Karthik Subramanian"
-                  className="w-full text-xs p-2.5 rounded-lg border border-[#D3C6AA] bg-white focus:outline-none focus:ring-1 focus:ring-[#182F18]"
+                  className="w-full text-xs p-3 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#182F18]/20"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-[#492E1E] mb-1">
+                  <label className="block text-xs font-bold text-[#492E1E] mb-1.5">
                     Email Address
                   </label>
                   <input
@@ -475,11 +536,11 @@ export default function BookingModal({
                     value={guestEmail}
                     onChange={(e) => setGuestEmail(e.target.value)}
                     placeholder="karthik@example.com"
-                    className="w-full text-xs p-2.5 rounded-lg border border-[#D3C6AA] bg-white focus:outline-none focus:ring-1 focus:ring-[#182F18]"
+                    className="w-full text-xs p-3 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#182F18]/20"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[#492E1E] mb-1">
+                  <label className="block text-xs font-bold text-[#492E1E] mb-1.5">
                     Mobile Number (India / Intl)
                   </label>
                   <input
@@ -488,14 +549,14 @@ export default function BookingModal({
                     value={guestPhone}
                     onChange={(e) => setGuestPhone(e.target.value)}
                     placeholder="+91 98450 12345"
-                    className="w-full text-xs p-2.5 rounded-lg border border-[#D3C6AA] bg-white focus:outline-none focus:ring-1 focus:ring-[#182F18]"
+                    className="w-full text-xs p-3 rounded-xl border border-[#D3C6AA] bg-white font-medium focus:outline-none focus:ring-2 focus:ring-[#182F18]/20"
                   />
                 </div>
               </div>
 
               {/* Foreign Guest Checkbox & Form C Advice */}
-              <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-200 text-xs space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer font-medium text-amber-900">
+              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 text-xs space-y-2">
+                <label className="flex items-center gap-2.5 cursor-pointer font-medium text-amber-950">
                   <input
                     type="checkbox"
                     checked={isForeignGuest}
@@ -505,15 +566,15 @@ export default function BookingModal({
                   <span>Primary guest or accompanying party includes a foreign national</span>
                 </label>
                 {isForeignGuest && (
-                  <p className="text-[11px] text-amber-800 bg-white/70 p-2 rounded border border-amber-200/50 leading-relaxed">
+                  <p className="text-[11px] text-amber-900 bg-white/80 p-3 rounded-xl border border-amber-200/60 leading-relaxed font-sans">
                     <strong>Statutory Form C Notice:</strong> Per Ministry of Home Affairs regulations, passport and visa details for foreign guests are verified physically at check-in counter and are not collected online.
                   </p>
                 )}
               </div>
 
               {/* Mandatory DPDP Act 2023 Consent Checkbox */}
-              <div className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-200 text-xs space-y-1">
-                <label className="flex items-start gap-2 cursor-pointer text-emerald-950 font-medium">
+              <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 text-xs space-y-1">
+                <label className="flex items-start gap-2.5 cursor-pointer text-emerald-950 font-medium leading-relaxed">
                   <input
                     type="checkbox"
                     required
@@ -528,24 +589,24 @@ export default function BookingModal({
               </div>
 
               {submissionError && (
-                <div className="p-2.5 rounded-lg bg-red-50 text-red-700 text-xs border border-red-200">
+                <div className="p-3.5 rounded-2xl bg-red-50 text-red-700 text-xs border border-red-200">
                   {submissionError}
                 </div>
               )}
 
               {/* Step 2 Actions */}
-              <div className="pt-2 flex justify-between items-center">
+              <div className="pt-3 flex justify-between items-center">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="px-4 py-2 border border-[#D3C6AA] text-[#182F18] text-xs font-semibold rounded-xl flex items-center gap-1.5 hover:bg-stone-50"
+                  className="px-5 py-3 border border-[#D3C6AA] text-[#182F18] text-xs font-semibold rounded-2xl flex items-center gap-1.5 hover:bg-stone-50 transition"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Dates</span>
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#182F18] hover:bg-[#2F502F] text-white text-xs font-semibold rounded-xl flex items-center gap-2 transition"
+                  className="px-7 py-3.5 bg-[#182F18] hover:bg-[#2F502F] text-white text-xs font-bold rounded-2xl flex items-center gap-2 transition-all shadow-md hover:shadow-lg hover:scale-[1.01]"
                 >
                   <span>Proceed to Payment</span>
                   <ArrowRight className="w-4 h-4" />
@@ -557,42 +618,42 @@ export default function BookingModal({
           {/* STEP 3: TEST PAYMENT GATEWAY */}
           {step === 3 && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 text-xs space-y-2">
-                <div className="flex items-center justify-between pb-2 border-b border-stone-200 font-semibold text-stone-900">
+              <div className="p-5 rounded-2xl bg-white border border-stone-200 text-xs space-y-2 shadow-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-100 font-bold text-stone-900">
                   <span>Reservation Summary</span>
                   <span>{selectedRoomObj?.name}</span>
                 </div>
                 <div className="flex justify-between text-stone-600">
                   <span>Stay Dates:</span>
-                  <span>{checkIn} to {checkOut} ({quote?.nightsCount} nights)</span>
+                  <span className="font-medium text-stone-900">{checkIn} to {checkOut} ({quote?.nightsCount} nights)</span>
                 </div>
                 <div className="flex justify-between text-stone-600">
                   <span>Guest:</span>
-                  <span>{guestName} ({guestEmail})</span>
+                  <span className="font-medium text-stone-900">{guestName} ({guestEmail})</span>
                 </div>
-                <div className="flex justify-between font-bold text-stone-900 text-sm pt-1 border-t border-stone-200">
+                <div className="flex justify-between font-bold text-stone-900 text-sm pt-2.5 border-t border-stone-100">
                   <span>Payable Amount:</span>
-                  <span className="text-emerald-800">₹{quote?.grandTotal.toLocaleString("en-IN")}</span>
+                  <span className="text-emerald-800 text-base font-serif">₹{quote?.grandTotal.toLocaleString("en-IN")}</span>
                 </div>
               </div>
 
               {/* Test Gateway Simulator */}
-              <div className="p-4 rounded-xl border border-dashed border-[#C5A880] bg-[#FAF8F5] text-xs space-y-3">
+              <div className="p-5 rounded-2xl border-2 border-dashed border-[#C5A880] bg-[#FAF8F5] text-xs space-y-3">
                 <div className="flex items-center gap-2 text-[#492E1E] font-bold">
                   <CreditCard className="w-4 h-4 text-[#9C7046]" />
                   <span>Simulated Test Payment Gateway (Instant Sandbox)</span>
                 </div>
-                <p className="text-[11px] text-stone-500">
+                <p className="text-[11px] text-stone-500 leading-relaxed">
                   This transaction operates in authenticated review test mode. Clicking confirm will atomically acquire the database allotment lock and confirm the reservation.
                 </p>
-                <div className="p-2.5 rounded bg-white border border-stone-200 flex items-center justify-between text-[11px] text-stone-600 font-mono">
+                <div className="p-3 rounded-xl bg-white border border-stone-200 flex items-center justify-between text-[11px] text-stone-700 font-mono">
                   <span>TEST_CARD: 4242 •••• •••• 4242</span>
-                  <span className="text-emerald-600 font-bold">AUTHORISED</span>
+                  <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">AUTHORISED</span>
                 </div>
               </div>
 
               {submissionError && (
-                <div className="p-3 rounded-lg bg-red-50 text-red-700 text-xs border border-red-200 flex items-start gap-2">
+                <div className="p-3.5 rounded-2xl bg-red-50 text-red-700 text-xs border border-red-200 flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
                   <div>
                     <span className="font-bold">Booking Failed: </span>
@@ -602,73 +663,83 @@ export default function BookingModal({
               )}
 
               {/* Step 3 Actions */}
-              <div className="pt-2 flex justify-between items-center">
+              <div className="pt-3 flex justify-between items-center">
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="px-4 py-2 border border-[#D3C6AA] text-[#182F18] text-xs font-semibold rounded-xl flex items-center gap-1.5 hover:bg-stone-50"
+                  className="px-5 py-3 border border-[#D3C6AA] text-[#182F18] text-xs font-semibold rounded-2xl flex items-center gap-1.5 hover:bg-stone-50 transition"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>Back</span>
+                  <span>Back to Guest Details</span>
                 </button>
                 <button
                   type="button"
                   disabled={isPending}
                   onClick={handleConfirmTestPayment}
-                  className="px-6 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-2 transition shadow-md disabled:opacity-50"
+                  className="px-7 py-3.5 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold rounded-2xl flex items-center gap-2 transition-all disabled:opacity-50 shadow-md hover:shadow-lg hover:scale-[1.01]"
                 >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>{isPending ? "Locking Allotment..." : `Pay ₹${quote?.grandTotal.toLocaleString("en-IN")} & Confirm`}</span>
+                  <Lock className="w-4 h-4" />
+                  <span>{isPending ? "Confirming Allotment..." : "Confirm & Pay (Direct Booking)"}</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* STEP 4: VERIFIED CONFIRMATION RECEIPT */}
+          {/* STEP 4: CONFIRMATION & ITEMISED RECEIPT */}
           {step === 4 && confirmedBooking && (
-            <div className="space-y-4 print:p-0">
-              <div className="text-center py-3">
-                <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <CheckCircle className="w-6 h-6" />
-                </div>
-                <h3 className="font-serif text-lg font-bold text-[#182F18]">
-                  Reservation Confirmed!
+            <div className="space-y-5 text-center">
+              <div className="w-14 h-14 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                <CheckCircle className="w-7 h-7" />
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-[#7E5433] font-bold">
+                  Reservation Confirmed
+                </span>
+                <h3 className="font-serif text-2xl font-bold text-[#182F18] mt-1">
+                  We look forward to welcoming you to the estate
                 </h3>
-                <p className="text-xs text-stone-500">
-                  Your direct reservation at Arabica Highlands has been locked into our database.
+                <p className="text-xs text-stone-500 mt-1">
+                  A confirmation email with stay directions has been dispatched to {confirmedBooking.guestEmail}.
                 </p>
               </div>
 
-              {/* Printable Invoice Card */}
-              <div className="p-4 rounded-xl bg-white border border-[#D3C6AA] text-xs space-y-3 font-sans">
-                <div className="flex justify-between items-center pb-2 border-b border-stone-200">
+              {/* Printable Folio Card with curves */}
+              <div
+                id="printable-folio"
+                className="bg-white border border-stone-200 rounded-3xl p-6 text-left space-y-4 shadow-sm"
+              >
+                <div className="flex justify-between items-start border-b border-stone-100 pb-3">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-stone-400">Booking Reference</span>
-                    <p className="font-mono font-bold text-sm text-[#182F18]">{confirmedBooking.bookingReference}</p>
+                    <h4 className="font-serif text-base font-bold text-stone-900">Arabica Highlands</h4>
+                    <p className="text-[11px] text-stone-400">Coffee Estate & Sanctuary, Chikkamagaluru</p>
+                    <p className="text-[11px] text-stone-500 font-mono mt-1">GSTIN: 29AAAAA0000A1Z5</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] uppercase font-bold text-stone-400">Status</span>
-                    <span className="block font-bold text-emerald-700">CONFIRMED (TEST_PAID)</span>
+                    <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Booking Reference</span>
+                    <span className="font-mono text-sm font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      {confirmedBooking.bookingReference}
+                    </span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-stone-700">
+                <div className="grid grid-cols-2 gap-2.5 text-stone-700">
                   <div>
-                    <p className="text-[11px] text-stone-500">Guest Name</p>
-                    <p className="font-medium">{confirmedBooking.guestName}</p>
+                    <p className="text-[11px] text-stone-400">Guest Name</p>
+                    <p className="font-semibold text-stone-900">{confirmedBooking.guestName}</p>
                   </div>
                   <div>
-                    <p className="text-[11px] text-stone-500">Stay Dates</p>
-                    <p className="font-medium">{confirmedBooking.checkInDate} to {confirmedBooking.checkOutDate}</p>
+                    <p className="text-[11px] text-stone-400">Stay Dates</p>
+                    <p className="font-semibold text-stone-900">{confirmedBooking.checkInDate} to {confirmedBooking.checkOutDate}</p>
                   </div>
                 </div>
 
                 {/* Nightly GST Breakdown Table */}
-                <div className="pt-2 border-t border-stone-100">
-                  <p className="text-[11px] font-bold text-stone-900 mb-1">Itemized GST Tax Invoice</p>
+                <div className="pt-2.5 border-t border-stone-100">
+                  <p className="text-[11px] font-bold text-stone-900 mb-1.5">Itemized GST Tax Invoice</p>
                   <table className="w-full text-left text-[11px]">
                     <thead>
-                      <tr className="text-stone-500 border-b border-stone-100">
+                      <tr className="text-stone-400 border-b border-stone-100 font-medium">
                         <th className="py-1">Date</th>
                         <th className="py-1">Base Tariff</th>
                         <th className="py-1">GST Rate</th>
@@ -678,34 +749,34 @@ export default function BookingModal({
                     <tbody>
                       {confirmedBooking.nightsBreakdown?.map((n: any) => (
                         <tr key={n.id} className="border-b border-stone-50">
-                          <td className="py-1">{n.date}</td>
+                          <td className="py-1 font-medium">{n.date}</td>
                           <td className="py-1">₹{n.baseTariff.toLocaleString("en-IN")}</td>
                           <td className="py-1">{Math.round(n.gstRate * 100)}% (₹{n.gstAmount.toLocaleString("en-IN")})</td>
-                          <td className="py-1 text-right font-medium">₹{n.totalNightPrice.toLocaleString("en-IN")}</td>
+                          <td className="py-1 text-right font-semibold text-stone-900">₹{n.totalNightPrice.toLocaleString("en-IN")}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
 
-                <div className="pt-2 border-t border-stone-200 flex justify-between items-center text-sm font-bold text-[#182F18]">
+                <div className="pt-2.5 border-t border-stone-200 flex justify-between items-center text-sm font-bold text-[#182F18]">
                   <span>Total Amount Paid:</span>
                   <span className="text-emerald-800">₹{confirmedBooking.grandTotal.toLocaleString("en-IN")}</span>
                 </div>
 
                 {confirmedBooking.isForeignGuest && (
-                  <div className="p-2 rounded bg-amber-50 border border-amber-200 text-[10px] text-amber-900">
+                  <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[10px] text-amber-900">
                     <strong>Check-in Requirement:</strong> Foreign guest passport and visa verification per Form C guidelines will be completed upon arrival at the estate.
                   </div>
                 )}
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center justify-between pt-2">
+              {/* Step 4 Actions */}
+              <div className="flex justify-center gap-3 pt-2">
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="px-4 py-2 border border-stone-300 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 flex items-center gap-1.5"
+                  className="px-5 py-2.5 border border-stone-300 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 flex items-center gap-1.5 transition"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print Receipt</span>
@@ -713,7 +784,7 @@ export default function BookingModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2 bg-[#182F18] text-white rounded-xl text-xs font-semibold hover:bg-[#2F502F]"
+                  className="px-6 py-2.5 bg-[#182F18] text-white rounded-xl text-xs font-bold hover:bg-[#2F502F] transition shadow-md"
                 >
                   Done
                 </button>
@@ -724,4 +795,6 @@ export default function BookingModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BookingModal from "./BookingModal";
 import {
   Coffee,
@@ -34,6 +34,15 @@ export default function HomeClient({ rooms }: { rooms: RoomItem[] }) {
   const [selectedRoomId, setSelectedRoomId] = useState<string>(rooms[0]?.id || "");
   const [searchCheckIn, setSearchCheckIn] = useState("");
   const [searchCheckOut, setSearchCheckOut] = useState("");
+
+  useEffect(() => {
+    const handleOpen = () => setModalOpen(true);
+    window.addEventListener("open-booking-modal", handleOpen);
+    if (typeof window !== "undefined" && window.location.search.includes("book=true")) {
+      setModalOpen(true);
+    }
+    return () => window.removeEventListener("open-booking-modal", handleOpen);
+  }, []);
 
   const handleBookRoom = (roomId: string) => {
     setSelectedRoomId(roomId);
