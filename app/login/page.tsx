@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { loginAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
-import { BrandEmblem } from "@/components/BrandLogo";
 import {
   Compass,
   ShieldCheck,
@@ -41,20 +40,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="bg-white rounded-3xl border border-[#D3C6AA] shadow-xl p-8 max-w-md w-full space-y-6">
-        <div className="text-center space-y-3">
-          <div className="flex justify-center mx-auto">
-            <BrandEmblem size={64} />
+        <div className="text-center space-y-2">
+          <div className="w-12 h-12 bg-[#182F18] text-[#C5A880] rounded-full flex items-center justify-center mx-auto shadow-sm">
+            <Compass className="w-6 h-6" />
           </div>
-          <div>
-            <h1 className="font-serif text-2xl font-bold text-[#182F18]">
-              Arabica Highlands
-            </h1>
-            <p className="text-[10px] tracking-[0.2em] uppercase font-bold text-[#C5A880] mt-0.5">
-              Staff & Reviewer Portal • Est. 1892
-            </p>
-          </div>
-          <p className="text-xs text-stone-500 max-w-xs mx-auto">
-            Sign in to access direct reservations, AI routing inbox, and allotment controls.
+          <h1 className="font-serif text-2xl font-bold text-[#182F18]">
+            Arabica Highlands Portal
+          </h1>
+          <p className="text-xs text-stone-500">
+            Sign in to access reservations, AI routing inbox, and allotment controls.
           </p>
         </div>
 
