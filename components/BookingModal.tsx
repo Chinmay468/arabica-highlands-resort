@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { createPortal } from "react-dom";
+import { BrandEmblem } from "@/components/BrandLogo";
 import {
   calculateStayPrice,
   checkAvailability,
@@ -233,18 +234,21 @@ export default function BookingModal({
       >
         {/* Luxury Header Banner */}
         <div className="bg-[#182F18] text-[#E3DAC5] px-6 sm:px-8 py-5 flex items-center justify-between border-b border-[#223E22]">
-          <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="font-serif text-lg sm:text-xl font-bold text-white tracking-wide">
-                Direct Sanctuary Reservation
-              </span>
-              <span className="text-[10px] bg-[#C5A880]/20 text-[#D8BC94] px-2.5 py-0.5 rounded-full border border-[#C5A880]/30 font-semibold uppercase tracking-wider">
-                Direct Rate Protection • 0% Fees
-              </span>
+          <div className="flex items-center gap-3.5">
+            <BrandEmblem size={44} />
+            <div className="space-y-0.5">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="font-serif text-lg sm:text-xl font-bold text-white tracking-wide">
+                  Direct Sanctuary Reservation
+                </span>
+                <span className="text-[10px] bg-[#C5A880]/20 text-[#D8BC94] px-2.5 py-0.5 rounded-full border border-[#C5A880]/30 font-semibold uppercase tracking-wider">
+                  Direct Rate Protection • 0% Fees
+                </span>
+              </div>
+              <p className="text-xs text-[#A3B6A3]">
+                Arabica Highlands Estate & Sanctuary • 76 Keys • Chikkamagaluru • Est. 1892
+              </p>
             </div>
-            <p className="text-xs text-[#A3B6A3]">
-              Arabica Highlands Estate & Sanctuary • 76 Keys • Chikkamagaluru
-            </p>
           </div>
           <button
             type="button"
@@ -710,10 +714,13 @@ export default function BookingModal({
                 className="bg-white border border-stone-200 rounded-3xl p-6 text-left space-y-4 shadow-sm"
               >
                 <div className="flex justify-between items-start border-b border-stone-100 pb-3">
-                  <div>
-                    <h4 className="font-serif text-base font-bold text-stone-900">Arabica Highlands</h4>
-                    <p className="text-[11px] text-stone-400">Coffee Estate & Sanctuary, Chikkamagaluru</p>
-                    <p className="text-[11px] text-stone-500 font-mono mt-1">GSTIN: 29AAAAA0000A1Z5</p>
+                  <div className="flex items-center gap-3">
+                    <BrandEmblem size={44} />
+                    <div>
+                      <h4 className="font-serif text-base font-bold text-stone-900 leading-tight">Arabica Highlands</h4>
+                      <p className="text-[11px] text-stone-400">Coffee Estate & Sanctuary, Chikkamagaluru • Est. 1892</p>
+                      <p className="text-[11px] text-stone-500 font-mono mt-0.5">GSTIN: 29AAAAA0000A1Z5</p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Booking Reference</span>

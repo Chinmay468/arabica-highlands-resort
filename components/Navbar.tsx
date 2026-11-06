@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { loginAction, logoutAction } from "@/app/actions/auth";
+import BrandLogo from "@/components/BrandLogo";
 import {
   Compass,
   Calendar,
@@ -150,19 +151,9 @@ export default function Navbar({ currentUser, pendingEscalationsCount = 0 }: Nav
 
       {/* 2. Full-Width Guest Navigation Bar */}
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-16 py-4 flex items-center justify-between">
-        {/* Left: Brand Identity */}
-        <a href="/" className="flex items-center gap-3.5 group shrink-0">
-          <div className="w-10 h-10 rounded-full bg-[#182F18] flex items-center justify-center text-[#C5A880] shadow-sm group-hover:scale-105 transition-transform duration-300">
-            <Compass className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#182F18] block leading-none">
-              Arabica Highlands
-            </span>
-            <span className="text-[9.5px] tracking-[0.2em] uppercase text-[#7E5433] block mt-1 font-medium">
-              Coffee Estate & Sanctuary • Chikkamagaluru
-            </span>
-          </div>
+        {/* Left: Rich Heritage Brand Identity */}
+        <a href="/" className="shrink-0 hover:opacity-95 transition-opacity">
+          <BrandLogo size="md" variant="dark" />
         </a>
 
         {/* Center: Clean, Well-Spaced Guest Links */}

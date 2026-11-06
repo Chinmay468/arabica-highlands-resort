@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import BrandLogo from "@/components/BrandLogo";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { Shield, MapPin, Phone, Mail, Award, CheckCircle2 } from "lucide-react";
@@ -36,10 +37,8 @@ export default async function RootLayout({
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
               {/* Brand Col */}
               <div className="space-y-3 md:col-span-1">
-                <span className="font-serif text-xl font-bold tracking-tight text-white block">
-                  Arabica Highlands
-                </span>
-                <p className="text-xs text-[#A3B6A3] leading-relaxed">
+                <BrandLogo size="md" variant="light" />
+                <p className="text-xs text-[#A3B6A3] leading-relaxed pt-1">
                   A 76-key boutique coffee estate sanctuary nestled on the mist-draped slopes of Chikkamagaluru, Karnataka.
                 </p>
                 <div className="flex items-center gap-1.5 text-xs text-amber-300 font-medium pt-1">
