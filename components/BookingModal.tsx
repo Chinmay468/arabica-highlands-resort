@@ -222,13 +222,13 @@ export default function BookingModal({
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-[9999] overflow-y-auto bg-black/80 backdrop-blur-2xl flex justify-center items-start pt-6 sm:pt-10 pb-16 px-4 sm:px-6 transition-all duration-300 animate-in fade-in"
+      className="fixed inset-0 z-[9999] overflow-y-auto bg-black/35 backdrop-blur-md flex justify-center items-start pt-6 sm:pt-10 pb-16 px-4 sm:px-6 transition-all duration-300 animate-in fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="relative bg-[#FAF8F5] rounded-[32px] sm:rounded-[36px] shadow-[0_30px_90px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.12)] border border-[#E3DAC5] w-full max-w-2xl sm:max-w-3xl overflow-hidden transform transition-all duration-300 scale-100 animate-in zoom-in-95"
+        className="relative bg-[#FAF8F5] rounded-[32px] sm:rounded-[36px] shadow-[0_25px_70px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.4)] border border-[#D3C6AA] w-full max-w-2xl sm:max-w-3xl overflow-hidden transform transition-all duration-300 scale-100 animate-in zoom-in-95"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Luxury Header Banner */}
